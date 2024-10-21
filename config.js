@@ -1,4 +1,5 @@
 export const CHAIN_ID = 56
+export const ETH_CHAIN_ID = 1
 export const SMARTCONTRACT_ADDRESS = "0xFBe1b258C225b178E676209011D8e129BAE58b61"
 export const SMARTCONTRACT_ABI = [
     {

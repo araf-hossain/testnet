@@ -3,7 +3,7 @@ import Head from 'next/head'
 import HomePage from '../components/HomePage'
 import Web3Modal from 'web3modal'
 import Web3 from 'web3'
-import { CHAIN_ID, SITE_ERROR, SMARTCONTRACT_ABI, SMARTCONTRACT_ABI_ERC20, SMARTCONTRACT_ADDRESS, SMARTCONTRACT_ADDRESS_ERC20 } from '../../config'
+import { CHAIN_ID, ETH_CHAIN_ID, SITE_ERROR, SMARTCONTRACT_ABI, SMARTCONTRACT_ABI_ERC20, SMARTCONTRACT_ADDRESS, SMARTCONTRACT_ADDRESS_ERC20 } from '../../config'
 import Sidebar from '../components/Sidebar'
 import MainContent from '../components/MainContent'
 import Header from '../components/Header'
@@ -38,6 +38,7 @@ export default function Home({ headerAlert, closeAlert }) {
 
   const connectWallet = async () => {
     if (await checkNetwork()) {
+      console.log("Network check passed");
       web3Modal = new Web3Modal({
         network: 'mainnet', // optional
         cacheProvider: true,
@@ -45,21 +46,23 @@ export default function Home({ headerAlert, closeAlert }) {
       })
       setHomeloading(true) //loading start
 
-      const provider = await web3Modal.connect()
-      const web3Provider = new providers.Web3Provider(provider)
+      const provider = await web3Modal.connect();
+      const web3Provider = new providers.Web3Provider(provider);
+      console.log("Web3Provider:", web3Provider);
 
-      const signer = web3Provider.getSigner()
-      const address = await signer.getAddress()
+      const signer = web3Provider.getSigner();
+      const address = await signer.getAddress();
+      console.log("Wallet address:", address);
 
       setConnected(true)
       setSignerAddress(address)
 
-      contract = new ethers.Contract(
+      const contract = new ethers.Contract(
         SMARTCONTRACT_ADDRESS,
         SMARTCONTRACT_ABI,
         signer
       )
-      contract_20 = new ethers.Contract(
+      const contract_20 = new ethers.Contract(
         SMARTCONTRACT_ADDRESS_ERC20,
         SMARTCONTRACT_ABI_ERC20,
         signer
@@ -104,7 +107,7 @@ export default function Home({ headerAlert, closeAlert }) {
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
-    contract = new ethers.Contract(
+    const contract = new ethers.Contract(
       SMARTCONTRACT_ADDRESS,
       SMARTCONTRACT_ABI,
       signer
@@ -132,10 +135,14 @@ export default function Home({ headerAlert, closeAlert }) {
     setLoading(true)
     const web3 = new Web3(Web3.givenProvider)
     const accounts = await web3.eth.getAccounts()
-    const userNFTs = await Moralis.Web3API.account.getNFTs({ chain: 'bsc', address: accounts[0] })
+    const chainId = await web3.eth.getChainId()
+    console.log("Chain ID:", chainId);
+    const chain = chainId === CHAIN_ID ? 'bsc' : 'eth'
+    const userNFTs = await Moralis.Web3API.account.getNFTs({ chain: chain, address: accounts[0] })
     setUnstakedCnt(userNFTs.total)
     setLoading(false)
   }
+  
   const getNFTLIST = () => {
     setPastNFTs()
     setStakedNFTs()
@@ -156,7 +163,7 @@ export default function Home({ headerAlert, closeAlert }) {
             setConnected(true)
           }
           ethereum.on('chainChanged', (chainId) => {
-            if (parseInt(chainId) === CHAIN_ID) {
+            if (parseInt(chainId) === CHAIN_ID || parseInt(chainId) === ETH_CHAIN_ID) {
               connectWallet()
             } else {
               setConnected(false)

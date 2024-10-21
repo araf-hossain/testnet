@@ -1,7 +1,7 @@
 import Web3 from "web3"
 import Web3Modal from 'web3modal'
 import { ethers, providers } from "ethers"
-import { CHAIN_ID, SITE_ERROR, SMARTCONTRACT_ADDRESS_ERC20 } from "../../config"
+import { CHAIN_ID, ETH_CHAIN_ID, SITE_ERROR, SMARTCONTRACT_ADDRESS_ERC20, ETH_SMARTCONTRACT_ADDRESS_ERC20 } from "../../config"
 import { errorAlert, errorAlertCenter, successAlert } from "../components/toastGroup"
 import { providerOptions } from './connectWallet'
 require('../pages/api/hello')
@@ -38,7 +38,7 @@ export const importToken = () => {
 export const checkNetwork = async (alert) => {
   const web3 = new Web3(Web3.givenProvider)
   const chainId = await web3.eth.getChainId()
-  if (chainId === CHAIN_ID) {
+  if (chainId === CHAIN_ID || chainId === ETH_CHAIN_ID) {
     return true
   } else {
     if (alert !== "no-alert")
